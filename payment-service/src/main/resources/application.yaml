@@ -3,9 +3,9 @@ spring:
     name: payment-service
 
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=payment_db;encrypt=true;trustServerCertificate=true;
-    username: sa
-    password:
+    url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=payment_db;encrypt=true;trustServerCertificate=true;
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:Prasanth@90}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
@@ -16,7 +16,7 @@ spring:
         dialect: org.hibernate.dialect.SQLServerDialect
 
   kafka:
-    bootstrap-server: localhost:9092
+    bootstrap-server: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -28,11 +28,11 @@ server:
 # Razorpay configuration
 
 razorpay:
-  key-id:
-  key-secret:
-  webhook-secret:
+  key-id: ${RAZORPAY_KEY_ID}
+  key-secret: ${RAZORPAY_KEY_SECRET}
+  webhook-secret: ${RAZORPAY_WEBHOOK_SECRET}
 
-managment:
+management:
   endpoints:
     web:
       exposure:

@@ -24,7 +24,7 @@ services:
     container_name: mssql
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_SA_PASSWORD=Prasanth@90
       - MSSQL_PID=Developer
     ports:
       - "1433:1433"

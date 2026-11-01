@@ -2,6 +2,7 @@ package com.banking.accountservice.controller;
 
 import com.banking.accountservice.dto.AccountResponse;
 import com.banking.accountservice.dto.CreateAccountRequest;
+import com.banking.accountservice.dto.LoginRequest;
 import com.banking.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,18 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            AccountResponse response = accountService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
     @PostMapping
-    private ResponseEntity<AccountResponse> createAccount(
+    public ResponseEntity<AccountResponse> createAccount(
             @Valid @RequestBody CreateAccountRequest request
             ){
 
@@ -73,12 +84,37 @@ public class AccountController {
 
     @PutMapping("/{accountNumber}/credit")
     public ResponseEntity<String> creditBalance(
-            @PathVariable String accountNumebr,
+            @PathVariable String accountNumber,
             @RequestParam BigDecimal amount
     ){
 
-        accountService.creditBalance(accountNumebr, amount);
+        accountService.creditBalance(accountNumber, amount);
         return ResponseEntity.ok("BALANCE CREDITED SUCCESSFULLY");
+    }
+
+    @PutMapping("/tpin/set")
+    public ResponseEntity<String> setTpin(@Valid @RequestBody com.banking.accountservice.dto.SetTpinRequest request) {
+        accountService.setTpin(request.getAccountNumber(), request.getTpin());
+        return ResponseEntity.ok("TPIN has been successfully set.");
+    }
+
+    @PostMapping("/tpin/verify")
+    public ResponseEntity<Boolean> verifyTpin(@Valid @RequestBody com.banking.accountservice.dto.VerifyTpinRequest request) {
+        boolean isValid = accountService.verifyTpin(request.getAccountNumber(), request.getTpin());
+        return ResponseEntity.ok(isValid);
+    }
+
+    @PostMapping("/{accountNumber}/deposit")
+    public ResponseEntity<AccountResponse> deposit(
+            @PathVariable String accountNumber,
+            @RequestParam BigDecimal amount
+    ) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Deposit amount must be greater than zero");
+        }
+
+        accountService.creditBalance(accountNumber, amount);
+        return ResponseEntity.ok(accountService.getAccount(accountNumber));
     }
 
 }

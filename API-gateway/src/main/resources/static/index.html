@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Banking Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --white: #ffffff;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+            --radius-xl: 18px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--slate-50);
+            color: var(--slate-900);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .topbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--slate-200);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-btn {
+            background: var(--slate-100);
+            border: 1px solid var(--slate-200);
+            color: var(--slate-800);
+            font-size: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .menu-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--slate-900);
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .user-nav-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-pill {
+            font-size: 13px;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--slate-100);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--slate-200);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--slate-400);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.active {
+            background: var(--success);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        .btn-logout {
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid #fecaca;
+            padding: 6px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Slide-Out Sidebar */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 320px;
+            height: 100vh;
+            background: var(--white);
+            box-shadow: var(--shadow-xl);
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--slate-500);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .sidebar-close-btn:hover {
+            color: var(--danger);
+            background: var(--danger-light);
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item button {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-700);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .nav-item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .nav-item button:hover {
+            background: var(--slate-100);
+            color: var(--primary);
+        }
+
+        .nav-item button.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-item button.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .lock-tag {
+            font-size: 11px;
+            background: var(--slate-200);
+            color: var(--slate-600);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--slate-200);
+            font-size: 13px;
+            color: var(--slate-500);
+            background: var(--slate-50);
+        }
+
+        /* Main Container */
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 32px 24px;
+            flex: 1;
+        }
+
+        /* Alerts */
+        .alert-banner {
+            padding: 14px 20px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert-success { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
+        .alert-danger { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
+
+        /* VIEW: Home */
+        .home-view {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, #1e3a8a, #1e40af 50%, #2563eb);
+            color: white;
+            border-radius: var(--radius-xl);
+            padding: 44px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: center;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            color: #dbeafe;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-btn {
+            background: white;
+            color: var(--primary);
+            padding: 12px 24px;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-btn-outline {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 12px 24px;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .hero-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-image-box {
+            width: 100%;
+            height: 280px;
+            border-radius: var(--radius-lg);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Panels & Feature Views */
+        .feature-view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feature-view.active {
+            display: block;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-sm);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--slate-900);
+        }
+
+        .panel-subtitle {
+            font-size: 13px;
+            color: var(--slate-500);
+            margin-top: 4px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate-700);
+        }
+
+        .form-control {
+            padding: 12px 14px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--slate-800);
+            background: var(--slate-50);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-control:focus {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            width: fit-content;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            margin-top: 10px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-item-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .profile-item-val {
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            margin-top: 4px;
+        }
+
+        .balance-huge {
+            font-size: 34px;
+            font-weight: 800;
+            color: #4ade80;
+            letter-spacing: -1px;
+            margin-top: 6px;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--slate-100);
+            color: var(--slate-600);
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--slate-200);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--slate-200);
+            color: var(--slate-700);
+        }
+
+        .badge-success { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 11px; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 11px; }
+        .badge-info { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 11px; }
+        .text-success { color: #16a34a !important; font-weight: 700; }
+        .text-danger { color: #dc2626 !important; font-weight: 700; }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .hero-card { grid-template-columns: 1fr; padding: 32px 24px; }
+            .hero-title { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header Topbar -->
+<header class="topbar">
+    <div class="header-left">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle Navigation">☰</button>
+        <div class="brand-logo" onclick="switchView('home')">
+            <span class="brand-badge">B</span>
+            <span>Retail Banking Portal</span>
+        </div>
+    </div>
+    <div class="user-nav-badge">
+        <div id="unauthBadge" class="status-pill">
+            <span class="status-dot"></span>
+            <span>Not Logged In</span>
+        </div>
+        <div id="authBadge" class="status-pill" style="display:none;">
+            <span class="status-dot active"></span>
+            <span>A/C: <strong id="headerAccountNo">-</strong></span>
+        </div>
+        <button id="logoutBtn" class="btn-logout" style="display:none;" onclick="handleLogout()">Sign Out</button>
+    </div>
+</header>
+
+<!-- Slide-Out Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Slide-Out Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="brand-logo">
+            <span class="brand-badge">B</span>
+            <span>Portal Navigation</span>
+        </div>
+        <button class="sidebar-close-btn" onclick="closeSidebar()">✕</button>
+    </div>
+    <ul class="nav-list">
+        <li class="nav-item">
+            <button id="nav-home" class="active" onclick="switchView('home')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home Overview</span>
+                </div>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="nav-login" onclick="switchView('login')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">🔑</span>
+                    <span id="navLoginLabel">Account Login</span>
+                </div>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="nav-create" onclick="switchView('create')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">📝</span>
+                    <span>Open New Account</span>
+                </div>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="nav-dashboard" class="locked" onclick="checkAuthAndSwitch('dashboard')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">👤</span>
+                    <span>Account Dashboard</span>
+                </div>
+                <span class="lock-tag" id="lock-dashboard">🔒 Locked</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="nav-tpin" class="locked" onclick="checkAuthAndSwitch('tpin')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">🔒</span>
+                    <span>Set / Update TPIN</span>
+                </div>
+                <span class="lock-tag" id="lock-tpin">🔒 Locked</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="nav-transfer" class="locked" onclick="checkAuthAndSwitch('transfer')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">💸</span>
+                    <span>Transfer Funds</span>
+                </div>
+                <span class="lock-tag" id="lock-transfer">🔒 Locked</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="nav-history" class="locked" onclick="checkAuthAndSwitch('history')">
+                <div class="nav-item-left">
+                    <span class="nav-icon">📜</span>
+                    <span>Passbook & History</span>
+                </div>
+                <span class="lock-tag" id="lock-history">🔒 Locked</span>
+            </button>
+        </li>
+    </ul>
+    <div class="sidebar-footer">
+        Logged In As: <strong id="sidebarAccountName">Guest User</strong>
+    </div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="main-wrapper">
+
+    <div id="alertBanner" class="alert-banner"></div>
+
+    <!-- 1. HOME VIEW -->
+    <section id="view-home" class="home-view">
+        <div class="hero-card">
+            <div>
+                <span class="hero-badge">Enterprise Core Banking</span>
+                <h1 class="hero-title">High-Speed & Secure Microservices Banking</h1>
+                <p class="hero-subtitle">
+                    End-to-end banking engine backed by Spring Cloud Gateway, Kafka event streams, and real-time fraud mitigation.
+                </p>
+                <div class="hero-actions">
+                    <button class="hero-btn" onclick="switchView('login')">🔐 Sign In to Portal</button>
+                    <button class="hero-btn-outline" onclick="switchView('create')">+ Register Account</button>
+                </div>
+            </div>
+
+            <div class="hero-image-box">
+                <img id="bankingHeroImg"
+                     src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80"
+                     alt="Core Banking Platform">
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. LOGIN VIEW -->
+    <section id="view-login" class="feature-view">
+        <div class="panel" style="max-width:480px; margin: 0 auto;">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Secure Account Sign In</h2>
+                    <p class="panel-subtitle">Access your funds, TPIN configuration, and ledger.</p>
+                </div>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>12-Digit Account Number</label>
+                    <input type="text" id="loginAccNo" class="form-control" required placeholder="e.g. 975322880860">
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label>Account Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%; margin-top:20px;">Sign In</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 3. OPEN NEW ACCOUNT VIEW -->
+    <section id="view-create" class="feature-view">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Open New Bank Account</h2>
+                    <p class="panel-subtitle">Create your digital account and set your login password.</p>
+                </div>
+            </div>
+            <form id="createAccountForm" onsubmit="handleCreateAccount(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Legal Name</label>
+                        <input type="text" id="newHolderName" class="form-control" required placeholder="e.g. Rahul Sharma">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="newEmail" class="form-control" required placeholder="name@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="newPhone" class="form-control" required placeholder="9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Type</label>
+                        <select id="newAccountType" class="form-control">
+                            <option value="SAVINGS">Savings Account</option>
+                            <option value="CURRENT">Current Account</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Opening Deposit (₹)</label>
+                        <input type="number" id="newDeposit" class="form-control" required min="500" value="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Create Login Password</label>
+                        <input type="password" id="newPassword" class="form-control" required placeholder="Minimum 6 characters">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">Submit & Open Account</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 4. ACCOUNT DASHBOARD (LOCKED) -->
+    <section id="view-dashboard" class="feature-view">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Account Dashboard</h2>
+                    <p class="panel-subtitle">Overview of your active balance and status.</p>
+                </div>
+            </div>
+            <div class="profile-card">
+                <span style="font-size:12px; color:#94a3b8; font-weight:700;">TOTAL AVAILABLE BALANCE</span>
+                <div id="dashBalance" class="balance-huge">₹0.00</div>
+                <div class="profile-grid">
+                    <div>
+                        <div class="profile-item-label">Account Holder</div>
+                        <div id="dashHolder" class="profile-item-val">-</div>
+                    </div>
+                    <div>
+                        <div class="profile-item-label">Account Number</div>
+                        <div id="dashAccNo" class="profile-item-val">-</div>
+                    </div>
+                    <div>
+                        <div class="profile-item-label">Email Address</div>
+                        <div id="dashEmail" class="profile-item-val">-</div>
+                    </div>
+                    <div>
+                        <div class="profile-item-label">Account Type</div>
+                        <div id="dashType" class="profile-item-val">-</div>
+                    </div>
+                    <div>
+                        <div class="profile-item-label">Daily Limit</div>
+                        <div id="dashLimit" class="profile-item-val">-</div>
+                    </div>
+                    <div>
+                        <div class="profile-item-label">Account Status</div>
+                        <div id="dashStatus" class="profile-item-val">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SET TPIN VIEW (LOCKED) -->
+    <section id="view-tpin" class="feature-view">
+        <div class="panel" style="max-width:480px; margin:0 auto;">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Set / Change 4-Digit TPIN</h2>
+                    <p class="panel-subtitle">This security PIN will authorize all your outgoing transfers.</p>
+                </div>
+            </div>
+            <form onsubmit="handleSetTpin(event)">
+                <div class="form-group">
+                    <label>Active Account</label>
+                    <input type="text" id="tpinAccDisplay" class="form-control" readonly disabled>
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label>New 4-Digit TPIN</label>
+                    <input type="password" id="tpinVal" class="form-control" maxlength="4" pattern="\d{4}" required placeholder="••••">
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%; margin-top:20px;">Save TPIN</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 6. TRANSFER FUNDS VIEW (LOCKED) -->
+    <section id="view-transfer" class="feature-view">
+        <div class="panel" style="max-width:540px; margin:0 auto;">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Transfer Funds</h2>
+                    <p class="panel-subtitle">Instant fund routing protected by SAGA & Fraud engine.</p>
+                </div>
+            </div>
+            <form id="transferForm" onsubmit="handleTransfer(event)">
+                <div class="form-group">
+                    <label>Sender Account (Your Account)</label>
+                    <input type="text" id="transferSender" class="form-control" readonly disabled>
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label>Recipient Account Number</label>
+                    <input type="text" id="transferReceiver" class="form-control" required placeholder="Enter recipient 12-digit account">
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label>Transfer Amount (₹)</label>
+                    <input type="number" step="0.01" id="transferAmount" class="form-control" required placeholder="e.g. 1500.00">
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label>Remarks</label>
+                    <input type="text" id="transferDesc" class="form-control" placeholder="Rent, Payment, etc.">
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label>4-Digit Authorization TPIN</label>
+                    <input type="password" id="transferTpin" class="form-control" maxlength="4" pattern="\d{4}" required placeholder="••••">
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%; margin-top:20px;">Execute Transfer</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 7. PASSBOOK / HISTORY VIEW (LOCKED) -->
+    <section id="view-history" class="feature-view">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Passbook & Audit Ledger</h2>
+                    <p class="panel-subtitle">Full transaction record with debit and credit tagging.</p>
+                </div>
+                <button class="btn-submit" style="margin-top:0; padding:8px 16px; font-size:13px;" onclick="loadHistory()">Refresh</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Transaction Ref</th>
+                        <th>Timestamp</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Counterparty</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align:center; color:var(--slate-500); padding:24px;">Loading transactions...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Fraud Detection OTP Verification Modal -->
+<div id="otpModal" class="modal-backdrop">
+    <div class="modal-content">
+        <h3 style="font-size:18px; font-weight:800; color:var(--danger); margin-bottom:8px;">⚠️ Fraud Alert: Verification Required</h3>
+        <p style="font-size:13px; color:var(--slate-600); margin-bottom:20px; line-height:1.5;">
+            This transaction exceeded normal risk thresholds. A 6-digit OTP has been dispatched to your registered email.
+        </p>
+        <div class="form-group">
+            <label>Enter 6-Digit OTP</label>
+            <input type="text" id="otpInput" class="form-control" maxlength="6" placeholder="123456" style="font-size:18px; letter-spacing:4px; text-align:center;">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+            <button type="button" class="hero-btn-outline" style="color:var(--slate-700); border-color:var(--slate-200);" onclick="closeOtpModal()">Cancel</button>
+            <button type="button" class="btn-submit" style="margin-top:0;" onclick="submitOtpVerification()">Verify & Complete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ACCOUNT_API = "/api/v1/accounts";
+    const TRANSACTION_API = "/api/v1/transactions";
+
+    let currentActiveUser = null;
+    let pendingTransactionId = null;
+
+    // Initialize state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        const cached = sessionStorage.getItem('bankingUser');
+        if (cached) {
+            try {
+                currentActiveUser = JSON.parse(cached);
+                applyAuthenticatedState();
+            } catch(e) {
+                sessionStorage.removeItem('bankingUser');
+            }
+        }
+    });
+
+    // Sidebar Navigation
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+
+    function checkAuthAndSwitch(viewName) {
+        if (!currentActiveUser) {
+            showAlert("Please login with your Account Number & Password first.", true);
+            switchView('login');
+            return;
+        }
+        switchView(viewName);
+    }
+
+    function switchView(viewName) {
+        closeSidebar();
+
+        document.querySelectorAll('.feature-view, .home-view').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-home').style.display = 'none';
+        document.querySelectorAll('.nav-list button').forEach(btn => btn.classList.remove('active'));
+
+        if (viewName === 'home') {
+            document.getElementById('view-home').style.display = 'flex';
+            document.getElementById('nav-home').classList.add('active');
+        } else {
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) target.classList.add('active');
+            const btn = document.getElementById(`nav-${viewName}`);
+            if (btn) btn.classList.add('active');
+        }
+
+        if (currentActiveUser) {
+            if (viewName === 'dashboard') populateDashboard(currentActiveUser);
+            if (viewName === 'tpin') document.getElementById('tpinAccDisplay').value = currentActiveUser.accountNumber;
+            if (viewName === 'transfer') document.getElementById('transferSender').value = currentActiveUser.accountNumber;
+            if (viewName === 'history') loadHistory();
+        }
+    }
+
+    function showAlert(msg, isError = false) {
+        const banner = document.getElementById('alertBanner');
+        banner.textContent = msg;
+        banner.className = `alert-banner ${isError ? 'alert-danger' : 'alert-success'}`;
+        banner.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { banner.style.display = 'none'; }, 6000);
+    }
+
+    // Authentication State Management
+    function applyAuthenticatedState() {
+        document.getElementById('unauthBadge').style.display = 'none';
+        document.getElementById('authBadge').style.display = 'flex';
+        document.getElementById('headerAccountNo').textContent = currentActiveUser.accountNumber;
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+        document.getElementById('sidebarAccountName').textContent = currentActiveUser.accountHolderName || currentActiveUser.accountNumber;
+        document.getElementById('navLoginLabel').textContent = "Switch Account";
+
+        // Unlock locked sidebar items
+        ['dashboard', 'tpin', 'transfer', 'history'].forEach(id => {
+            const btn = document.getElementById(`nav-${id}`);
+            const lock = document.getElementById(`lock-${id}`);
+            if (btn) btn.classList.remove('locked');
+            if (lock) lock.style.display = 'none';
+        });
+    }
+
+    function handleLogout() {
+        sessionStorage.removeItem('bankingUser');
+        currentActiveUser = null;
+
+        document.getElementById('unauthBadge').style.display = 'flex';
+        document.getElementById('authBadge').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('sidebarAccountName').textContent = 'Guest User';
+        document.getElementById('navLoginLabel').textContent = "Account Login";
+
+        ['dashboard', 'tpin', 'transfer', 'history'].forEach(id => {
+            const btn = document.getElementById(`nav-${id}`);
+            const lock = document.getElementById(`lock-${id}`);
+            if (btn) btn.classList.add('locked');
+            if (lock) lock.style.display = 'inline-block';
+        });
+
+        showAlert("You have signed out.");
+        switchView('home');
+    }
+
+    // Login Handler
+    async function handleLogin(e) {
+        e.preventDefault();
+        const accNo = document.getElementById('loginAccNo').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            const res = await fetch(`${ACCOUNT_API}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountNumber: accNo, password: password })
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(errText || "Invalid account credentials");
+            }
+
+            currentActiveUser = await res.json();
+            sessionStorage.setItem('bankingUser', JSON.stringify(currentActiveUser));
+
+            applyAuthenticatedState();
+            showAlert(`Welcome back, ${currentActiveUser.accountHolderName}!`);
+            document.getElementById('loginPassword').value = '';
+            switchView('dashboard');
+        } catch (err) {
+            showAlert(err.message, true);
+        }
+    }
+
+    // Dashboard Display
+    function populateDashboard(user) {
+        document.getElementById('dashBalance').textContent = `₹${Number(user.balance).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        document.getElementById('dashHolder').textContent = user.accountHolderName || '-';
+        document.getElementById('dashAccNo').textContent = user.accountNumber;
+        document.getElementById('dashEmail').textContent = user.email || '-';
+        document.getElementById('dashType').textContent = user.accountType || '-';
+        document.getElementById('dashLimit').textContent = `₹${Number(user.dailyTransactionLimit || 0).toLocaleString('en-IN')}`;
+        document.getElementById('dashStatus').textContent = user.status || '-';
+    }
+
+    async function refreshActiveUserBalance() {
+        if (!currentActiveUser) return;
+        try {
+            const res = await fetch(`${ACCOUNT_API}/${currentActiveUser.accountNumber}`);
+            if (res.ok) {
+                currentActiveUser = await res.json();
+                sessionStorage.setItem('bankingUser', JSON.stringify(currentActiveUser));
+                populateDashboard(currentActiveUser);
+            }
+        } catch(e) {}
+    }
+
+    // Create Account Handler
+    async function handleCreateAccount(e) {
+        e.preventDefault();
+        const payload = {
+            accountHolderName: document.getElementById('newHolderName').value.trim(),
+            email: document.getElementById('newEmail').value.trim(),
+            phone: document.getElementById('newPhone').value.trim(),
+            accountType: document.getElementById('newAccountType').value,
+            initialDeposit: parseFloat(document.getElementById('newDeposit').value),
+            password: document.getElementById('newPassword').value
+        };
+
+        try {
+            const res = await fetch(ACCOUNT_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Account creation failed");
+            }
+
+            const data = await res.json();
+            showAlert(`Account Created! Your Account Number is ${data.accountNumber}. Please sign in.`);
+            document.getElementById('createAccountForm').reset();
+            document.getElementById('loginAccNo').value = data.accountNumber;
+            switchView('login');
+        } catch (err) {
+            showAlert(err.message, true);
+        }
+    }
+
+    // Set TPIN Handler
+    async function handleSetTpin(e) {
+        e.preventDefault();
+        if (!currentActiveUser) return;
+
+        const tpin = document.getElementById('tpinVal').value.trim();
+        try {
+            const res = await fetch(`${ACCOUNT_API}/tpin/set`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountNumber: currentActiveUser.accountNumber, tpin: tpin })
+            });
+
+            if (!res.ok) throw new Error("Failed to set TPIN");
+            showAlert("TPIN has been successfully saved!");
+            document.getElementById('tpinVal').value = '';
+            switchView('dashboard');
+        } catch (err) {
+            showAlert(err.message, true);
+        }
+    }
+
+    // Fund Transfer Handler with Active Polling for Immediate OTP Trigger
+    async function handleTransfer(e) {
+        e.preventDefault();
+        if (!currentActiveUser) return;
+
+        const payload = {
+            senderAccountNumber: currentActiveUser.accountNumber,
+            receiverAccountNumber: document.getElementById('transferReceiver').value.trim(),
+            amount: parseFloat(document.getElementById('transferAmount').value),
+            description: document.getElementById('transferDesc').value,
+            tpin: document.getElementById('transferTpin').value.trim()
+        };
+
+        try {
+            showAlert("Initiating transfer...", false);
+
+            const res = await fetch(`${TRANSACTION_API}/transfer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Transfer request failed");
+            }
+
+            let data = await res.json();
+            pendingTransactionId = data.id;
+
+            // If flagged immediately by the service
+            if (data.status === 'PENDING_VERIFICATION') {
+                openOtpModal();
+                return;
+            }
+
+            // Poll for up to 3 seconds to capture Kafka-driven fraud check result
+            let attempts = 0;
+            const pollInterval = setInterval(async () => {
+                attempts++;
+                try {
+                    const checkRes = await fetch(`${TRANSACTION_API}/${pendingTransactionId}`);
+                    if (checkRes.ok) {
+                        const updatedTx = await checkRes.json();
+
+                        if (updatedTx.status === 'PENDING_VERIFICATION') {
+                            clearInterval(pollInterval);
+                            openOtpModal();
+                            return;
+                        } else if (updatedTx.status === 'COMPLETED') {
+                            clearInterval(pollInterval);
+                            showAlert("Transfer completed successfully!");
+                            document.getElementById('transferForm').reset();
+                            refreshActiveUserBalance();
+                            switchView('dashboard');
+                            return;
+                        } else if (updatedTx.status === 'FAILED' || updatedTx.status === 'FLAGGED') {
+                            clearInterval(pollInterval);
+                            showAlert(`Transfer Declined: ${updatedTx.failureReason || 'Failed'}`, true);
+                            return;
+                        }
+                    }
+                } catch (err) {}
+
+                if (attempts >= 6) {
+                    clearInterval(pollInterval);
+                    showAlert("Transfer submitted. Check status in your passbook.", false);
+                    document.getElementById('transferForm').reset();
+                    switchView('history');
+                }
+            }, 500);
+
+        } catch (err) {
+            showAlert(err.message, true);
+        }
+    }
+
+    function openOtpModal() {
+        document.getElementById('otpInput').value = '';
+        document.getElementById('otpModal').style.display = 'flex';
+        showAlert("⚠️ High-risk activity detected: 6-digit OTP sent to your registered email.", true);
+    }
+
+    // OTP Verification Modal Handlers
+    function closeOtpModal() {
+        document.getElementById('otpModal').style.display = 'none';
+        pendingTransactionId = null;
+    }
+
+    async function submitOtpVerification() {
+        const otp = document.getElementById('otpInput').value.trim();
+        if (!otp || !pendingTransactionId) return alert("Please enter the 6-digit OTP");
+
+        try {
+            const res = await fetch(`${TRANSACTION_API}/${pendingTransactionId}/verify?otp=${otp}`, {
+                method: 'POST'
+            });
+            const data = await res.json();
+
+            if (data.status === 'COMPLETED') {
+                closeOtpModal();
+                showAlert("OTP Verified! Transaction completed.");
+                document.getElementById('transferForm').reset();
+                await refreshActiveUserBalance();
+                switchView('dashboard');
+            } else {
+                alert(`Verification Failed: ${data.failureReason || 'Invalid OTP'}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    // Passbook / Ledger Loader (Matches TransactionController: /api/v1/transactions/account/{accountNumber})
+    async function loadHistory() {
+        if (!currentActiveUser) return;
+        const tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--slate-500); padding:20px;">Fetching ledger...</td></tr>`;
+
+        try {
+            const res = await fetch(`${TRANSACTION_API}/account/${currentActiveUser.accountNumber}`);
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(errText || "Could not fetch passbook");
+            }
+            const list = await res.json();
+
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--slate-500); padding:20px;">No transaction records found.</td></tr>`;
+                return;
+            }
+
+            list.forEach(tx => {
+                const isCredit = (tx.receiverAccountNumber === currentActiveUser.accountNumber);
+                const typeLabel = isCredit ? 'CREDIT' : 'DEBIT';
+                const badgeClass = isCredit ? 'badge-success' : 'badge-danger';
+                const amountClass = isCredit ? 'text-success' : 'text-danger';
+                const amountSign = isCredit ? '+₹' : '-₹';
+                const counterparty = isCredit ? (tx.senderAccountNumber || 'External') : tx.receiverAccountNumber;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><code>${tx.id ? tx.id.substring(0, 8) + '...' : '-'}</code></td>
+                        <td>${tx.createdAt ? new Date(tx.createdAt).toLocaleString() : '-'}</td>
+                        <td><span class="${badgeClass}">${typeLabel}</span></td>
+                        <td class="${amountClass}">${amountSign}${Number(tx.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td>${counterparty}</td>
+                        <td><span class="badge-info">${tx.status}</span></td>
+                    </tr>
+                `;
+            });
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:20px;">${err.message}</td></tr>`;
+        }
+    }
+</script>
+</body>
+</html>

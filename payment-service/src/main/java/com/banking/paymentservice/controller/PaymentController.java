@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.ranges.RangeException;
 
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class PaymentController {
             @Valid @RequestBody CreatePaymentRequest request
             )  throws RazorpayException {
 
-        return.ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(paymentService.createPaymentOrder(request));
     }
 

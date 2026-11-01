@@ -27,10 +27,13 @@ public class CreateAccountRequest {
     private String phone;
 
     @NotNull(message = "Account type is required")
-    private AccountType accounType;
+    private AccountType accountType;
 
     @NotNull(message = "Initial deposit is required")
     @Positive(message = "Initial deposit must be positive")
     private BigDecimal initialDeposit;
+
+    @NotBlank(message = "Password is required")
+    private String password;
 
 }

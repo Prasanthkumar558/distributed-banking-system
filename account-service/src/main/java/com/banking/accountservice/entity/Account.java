@@ -53,8 +53,9 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Transient
-    private String password;
+    @Column(length = 100)
+    private String tpin;
 
-
+    @Column(nullable = false)
+    private String passwordHash;
 }

@@ -26,4 +26,6 @@ public class TransferRequest {
 
     private String description;
 
+    @NotBlank(message = "Transaction PIN (TPIN) is required")
+    private String tpin;
 }

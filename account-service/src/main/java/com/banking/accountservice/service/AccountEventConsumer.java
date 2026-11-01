@@ -15,6 +15,7 @@ import java.util.Map;
 public class AccountEventConsumer {
 
     private final AccountService accountService;
+
     /*
         Consume transaction completed from event from kafka
         Credits reciver account
@@ -27,38 +28,58 @@ public class AccountEventConsumer {
             String receiverAccount = (String) payload.get("receiverAccountNumber");
             BigDecimal amount = new BigDecimal(payload.get("amount").toString());
 
-            log.info("Crediting account: {} amount; {}",receiverAccount,amount);
+            log.info("Crediting account: {} amount; {}", receiverAccount, amount);
 
-            accountService.creditBalance(receiverAccount,amount);
+            accountService.creditBalance(receiverAccount, amount);
 
         }
         catch (Exception e) {
-            log.error("Error crediting amount: {}",e.getMessage());
+            log.error("Error crediting amount: {}", e.getMessage());
         }
     }
-
 
     /**
      * Consume fraud. Detected event from kafka
      * Blocks the flagged account
      */
     @KafkaListener(topics = "fraud.detected")
-    public void consumeFraudDetected
-                (@Payload Map<String , Object> payload) {
+    public void consumeFraudDetected(
+            @Payload Map<String, Object> payload) {
 
-        try{
-
+        try {
             String accountNumber = (String) payload.get("accountNumber");
-            log.info("Fraud detected - blocking account: {}",accountNumber);
+            log.info("Fraud detected - blocking account: {}", accountNumber);
 
             accountService.blockAccount(accountNumber);
 
         }
-        catch(Exception e) {
-            log.error("Error blocking account {}",e.getMessage());
+        catch (Exception e) {
+            log.error("Error blocking account {}", e.getMessage());
         }
     }
 
+    /**
+     * Consume payment.completed event from kafka
+     * Credits the deposited amount into the user's account balance
+     */
+    @KafkaListener(topics = "payment.completed")
+    public void consumePaymentCompleted(
+            @Payload Map<String, Object> payload) {
 
+        try {
+            String accountNumber = (String) payload.get("accountNumber");
+            BigDecimal amount = new BigDecimal(payload.get("amount").toString());
+            String razorpayPaymentId = (String) payload.get("razorpayPaymentId");
 
+            log.info("Payment deposit received - Crediting account: {} amount: {} (Razorpay ID: {})",
+                    accountNumber, amount, razorpayPaymentId);
+
+            accountService.creditBalance(accountNumber, amount);
+
+            log.info("Balance successfully credited for account: {}", accountNumber);
+        }
+        catch (Exception e) {
+            log.error("Error processing payment.completed event: {}", e.getMessage());
+        }
+    }
 }

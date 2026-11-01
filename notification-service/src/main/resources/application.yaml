@@ -1,3 +1,39 @@
+server:
+  port: 8085
+
+account:
+  service:
+    url: http://localhost:8081
+
 spring:
   application:
     name: notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service-group-v3
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:pkbanking.alerts@gmail.com}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
