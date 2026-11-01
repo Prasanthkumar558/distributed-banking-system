@@ -8,8 +8,8 @@ spring:
 
   datasource:
     url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=transaction_db;encrypt=true;trustServerCertificate=true;
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:Prasanth@90}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
